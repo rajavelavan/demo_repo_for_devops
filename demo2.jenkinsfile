@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_HUB_USER = 'rajavelavan'
+        DOCKER_IMAGE = 'rajavelavan/demo_app_for_containerization'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/rajavelavan/demo_repo_for_devops.git'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh "docker build -t $DOCKER_IMAGE:${BUILD_NUMBER} ."
+                }
+            }
+        }
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh "echo $PASS | docker login -u $USER --password-stdin"
+                    sh "docker push $DOCKER_IMAGE:${BUILD_NUMBER}"
+                }
+            }
+        }
+        stage('Deploy with Ansible') {
+            steps {
+                sh "ansible-playbook -i ansible/hosts ansible/deploy.yml --extra-vars 'image_tag=${BUILD_NUMBER}'"
+            }
+        }
+    }
+}
