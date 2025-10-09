@@ -2,12 +2,13 @@
 pipeline {
     // 1. Agent: Specifies where the pipeline runs. 
     //    Using a 'node' Docker image ensures a clean, pre-configured environment.
-    agent {
-        docker { 
-            image 'node:lts-slim' // Use a stable, lightweight Node.js image
-            args '-u root' // Helps avoid permission issues for beginners
-        }
-    }
+    agent any
+    // agent {
+    //     docker { 
+    //         image 'node:lts-slim' // Use a stable, lightweight Node.js image
+    //         args '-u root' // Helps avoid permission issues for beginners
+    //     }
+    // }
 
     // 2. Stages: Defines the sequence of work
     stages {
