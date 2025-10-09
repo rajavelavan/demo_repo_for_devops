@@ -1,33 +1,53 @@
+// Jenkinsfile
 pipeline {
-    agent any
-    environment {
-        DOCKER_HUB_USER = 'rajavelavan'
-        DOCKER_IMAGE = 'rajavelavan/demo_app_for_containerization'
+    // 1. Agent: Specifies where the pipeline runs. 
+    //    Using a 'node' Docker image ensures a clean, pre-configured environment.
+    agent {
+        docker { 
+            image 'node:lts-slim' // Use a stable, lightweight Node.js image
+            args '-u root' // Helps avoid permission issues for beginners
+        }
     }
+
+    // 2. Stages: Defines the sequence of work
     stages {
+
+        // Stage 1: Checkout (usually done automatically by Jenkins when using 'Pipeline from SCM')
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/rajavelavan/demo_repo_for_devops.git'
+                echo 'Checking out code...'
+                // The 'checkout scm' step is typically implied or explicitly used
+                // to pull the source code from the configured repository.
+                checkout scm
             }
         }
-        stage('Build Docker Image') {
+
+        // Stage 2: Build - Install dependencies
+        stage('Build') {
             steps {
-                script {
-                    sh "docker build -t $DOCKER_IMAGE:${BUILD_NUMBER} ."
-                }
+                echo 'Installing Node.js dependencies...'
+                sh 'npm install' // Installs all dependencies from package.json
             }
         }
-        stage('Push to Docker Hub') {
+
+        // Stage 3: Test - Run tests
+        stage('Test') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sh "echo $PASS | docker login -u $USER --password-stdin"
-                    sh "docker push $DOCKER_IMAGE:${BUILD_NUMBER}"
-                }
+                echo 'Running tests...'
+                // Assumes you have a 'test' script defined in package.json
+                sh 'npm test' 
+                // You can add steps here to publish test reports (e.g., junit)
             }
         }
-        stage('Deploy with Ansible') {
+
+        // Stage 4: Deploy - Deploy the application
+        stage('Deploy') {
             steps {
-                sh "ansible-playbook -i ansible/hosts ansible/deploy.yml --extra-vars 'image_tag=${BUILD_NUMBER}'"
+                echo 'Deploying application (Example using a shell command)...'
+                // *** In a real-world scenario, this would be more complex (e.g., Docker build/push, SSH, Ansible) ***
+                // Simple example: Copying files or starting the app on the agent (for illustration)
+                sh 'npm start &' // Starts the app (use a more robust method in production)
+                echo 'Deployment successful!'
             }
         }
     }
