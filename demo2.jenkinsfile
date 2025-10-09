@@ -1,31 +1,29 @@
-// Jenkinsfile
 pipeline {
     agent any
+    environment {
+        VERCEL_TOKEN = credentials('VERCEL_TOKEN')
+    }
     stages {
         stage('Checkout') {
             steps {
-                echo 'Checking out code...'
-                checkout scm
+                git url: 'https://github.com/rajavelavan/demo_repo_for_devops.git',
+                    branch: 'main'
             }
         }
-        stage('Build') {
+        stage('Deploy to Vercel') {
             steps {
-                echo 'Installing Node.js dependencies...'
                 sh 'npm install'
+                // Use the Vercel CLI to deploy to production
+                sh 'npx vercel --prod --token $VERCEL_TOKEN --yes'
             }
         }
-        stage('Test') {
-            steps {
-                echo 'Running tests...'
-                sh 'npm test' 
-            }
+    }
+    post {
+        success {
+            echo 'Deployment to Vercel successful!'
         }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying application (Example using a shell command)...'
-                sh 'npm start &'
-                echo 'Deployment successful!'
-            }
+        failure {
+            echo 'Deployment to Vercel failed!'
         }
     }
 }
