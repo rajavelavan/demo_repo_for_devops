@@ -1,53 +1,29 @@
 // Jenkinsfile
 pipeline {
-    // 1. Agent: Specifies where the pipeline runs. 
-    //    Using a 'node' Docker image ensures a clean, pre-configured environment.
     agent any
-    // agent {
-    //     docker { 
-    //         image 'node:lts-slim' // Use a stable, lightweight Node.js image
-    //         args '-u root' // Helps avoid permission issues for beginners
-    //     }
-    // }
-
-    // 2. Stages: Defines the sequence of work
     stages {
-
-        // Stage 1: Checkout (usually done automatically by Jenkins when using 'Pipeline from SCM')
         stage('Checkout') {
             steps {
                 echo 'Checking out code...'
-                // The 'checkout scm' step is typically implied or explicitly used
-                // to pull the source code from the configured repository.
                 checkout scm
             }
         }
-
-        // Stage 2: Build - Install dependencies
         stage('Build') {
             steps {
                 echo 'Installing Node.js dependencies...'
-                sh 'npm install' // Installs all dependencies from package.json
+                sh 'npm install'
             }
         }
-
-        // Stage 3: Test - Run tests
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                // Assumes you have a 'test' script defined in package.json
                 sh 'npm test' 
-                // You can add steps here to publish test reports (e.g., junit)
             }
         }
-
-        // Stage 4: Deploy - Deploy the application
         stage('Deploy') {
             steps {
                 echo 'Deploying application (Example using a shell command)...'
-                // *** In a real-world scenario, this would be more complex (e.g., Docker build/push, SSH, Ansible) ***
-                // Simple example: Copying files or starting the app on the agent (for illustration)
-                sh 'npm start &' // Starts the app (use a more robust method in production)
+                sh 'npm start &'
                 echo 'Deployment successful!'
             }
         }
