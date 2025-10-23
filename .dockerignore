@@ -1,8 +1,27 @@
-node_modules
-build
-.env.*
-.git
+# dependencies
+/node_modules
+
+# local env files
+/.env.*
+
+# Version control 
+/.git
+/.gitignore
+
+# Next.js build output
 .next
-*.md
-.dockerignore
-Dockerfile
+.next/cache
+.next/standalone
+
+# Cache directories
+.cache
+.turbo
+.npm
+
+# Log files and reports
+npm-debug.log
+npm-debug.log.*
+yarn-error.log*
+lerna-debug.log*
+.nyc_output/
+coverage/
